@@ -7,13 +7,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.DifferentialDrive;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,11 +28,10 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
-  private final DifferentialDrive m_robotDrive = new DifferentialDrive(,);
-  private final Joystick m_stick = new Joystick(0);
-  private final Timer m_timer = new Timer();
-
+  Joystick stick = new Joystick(0);
+  CANSparkMax l_motor = new CANSparkMax(1,MotorType.kBrushless);
+  CANSparkMax r_motor = new CANSparkMax(2,MotorType.kBrushless);
+  DifferentialDrive drive = new DifferentialDrive(l_motor, r_motor);
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -84,12 +84,7 @@ public class Robot extends TimedRobot {
         break;
       case kDefaultAuto:
       default:
-         // Drive for 2 seconds
-        if (m_timer.get() < 2.0) {
-          m_robotDrive.arcadeDrive(0.5, 0.0); // drive forwards half speed
-      } else {
-          m_robotDrive.stopMotor(); // stop robot
-      }
+        // Put default auto code here
         break;
     }
   }
@@ -99,7 +94,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
+    drive.arcadeDrive(stick.getY(), stick.getX());
   }
 
   /**
