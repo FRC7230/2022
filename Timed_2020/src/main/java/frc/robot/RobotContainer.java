@@ -22,6 +22,9 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import static edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.Filesystem;
+import java.io.IOException;
+import edu.wpi.first.wpilibj.DriverStation;
 
 
 
@@ -95,13 +98,13 @@ public class RobotContainer {
             .setKinematics(DriveConstants.kDriveKinematics)
             // Apply the voltage constraint
             .addConstraint(autoVoltageConstraint);
-
-      try{
-      //(Paths.get("/home/lvuser/deploy/output/example.wpilib.json"));
-      Path path = Paths.get("Users\\Johnathan\\FRC\\Timed-Imported\\src\\main\\deploy\\paths\\5Ball.wpilib.json");
-    Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(path);
-     } catch (Exception e){
-     }
+    String trajectoryJSON = "Users\\Johnathan\\FRC\\Timed-Imported\\src\\main\\deploy\\paths\\5Ball.wpilib.json";
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
     RamseteCommand ramseteCommand = new RamseteCommand(
       trajectory,
       m_robotDrive::getPose,
