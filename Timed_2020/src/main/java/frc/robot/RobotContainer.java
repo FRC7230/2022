@@ -33,7 +33,7 @@ import static edu.wpi.first.wpilibj.XboxController.Button;
  */
 public class RobotContainer {
   // The robot's subsystems
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  public final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -98,10 +98,9 @@ public class RobotContainer {
 
       try{
       //(Paths.get("/home/lvuser/deploy/output/example.wpilib.json"));
-      Path path = Paths.get("/home/Queen/deploy/output/pathweaver.json");
+      Path path = Paths.get("Users\\Johnathan\\FRC\\Timed-Imported\\src\\main\\deploy\\paths\\5Ball.wpilib.json");
     Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(path);
      } catch (Exception e){
-        drive1.arcadeDrive(-.15, .15);
      }
     RamseteCommand ramseteCommand = new RamseteCommand(
       trajectory,

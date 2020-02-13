@@ -18,19 +18,27 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj.Spark;
 import frc.robot.Constants.DriveConstants;
 
+import frc.robot.Robot;
+//import frc.robot.Robot;
 public class DriveSubsystem extends SubsystemBase {
+ 
+  //test
+  public Spark l_motor1=  new Spark(0);
+  public Spark r_motor1 = new Spark(2);
+  public Spark l_motor2 = new Spark(1);
+  public Spark r_motor2 = new Spark(3);
   // The motors on the left side of the drive.
   private final SpeedControllerGroup m_leftMotors =
-      new SpeedControllerGroup(new PWMVictorSPX(DriveConstants.kLeftMotor1Port),
-                               new PWMVictorSPX(DriveConstants.kLeftMotor2Port));
+      new SpeedControllerGroup(l_motor1,
+                               l_motor2);
 
   // The motors on the right side of the drive.
   private final SpeedControllerGroup m_rightMotors =
-      new SpeedControllerGroup(new PWMVictorSPX(DriveConstants.kRightMotor1Port),
-                               new PWMVictorSPX(DriveConstants.kRightMotor2Port));
+      new SpeedControllerGroup(r_motor1,
+                               r_motor2);
 
   // The robot's drive
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
@@ -107,6 +115,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void arcadeDrive(double fwd, double rot) {
     m_drive.arcadeDrive(fwd, rot);
   }
+  
 
   /**
    * Controls the left and right sides of the drive directly with voltages.
