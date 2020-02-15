@@ -10,22 +10,23 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+// import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.Spark;
+// import com.revrobotics.CANSparkMax;
+// import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+// import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+// import edu.wpi.first.wpilibj.trajectory.Trajectory;
+// import edu.wpi.first.wpilibj.Spark;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.Mechanisms.Mechanism;
+// import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.Mechanism;
 
-import java.io.IOException;
-import java.nio.file.Paths;
+// import java.io.IOException;
+// import java.nio.file.Paths;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -39,7 +40,23 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private Joystick m_stick = new Joystick(0);
-  private Mechanism Intake = new Mechanism("button",0,5,6,1,2,50);
+  private Mechanism intake = new Mechanism("button",0,5,6,1,2,50);
+  private Mechanism conveyer = new Mechanism("button",0,7,8,3,4,50);
+  private Mechanism shooter = new Mechanism("button",0,9,10,5,6,50);
+  private Mechanism climb = new Mechanism("button", 0,11,12,7,8,50);
+  /*
+  BUTTONS:
+  A - 1
+  B - 2
+  X - 3
+  Y - 4
+  L Shoulder Buttons - 5
+  R Shoulder Button - 6
+  Middle Button (L) - 7
+  Middle Button ® - 8
+  */
+
+  // private Mechanism Intake = new Mechanism("button",0,5,6,1,2,50);
   private final Timer m_timer = new Timer();
   //CANSparkMax l_motor1 = new CANSparkMax(1, MotorType.kBrushless);
   //CANSparkMax r_motor1 = new CANSparkMax(2, MotorType.kBrushless);
@@ -67,7 +84,7 @@ public class Robot extends TimedRobot {
   }*/
  // DifferentialDrive flywheel = new DifferentialDrive(l_flywheel, r_flywheel);
  RobotContainer rc = new RobotContainer(); 
- Command c; 
+//  RamseteCommand c; 
 
   /**
    * This function is run when the robot is first started up and should be
@@ -119,8 +136,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    c=rc.getAutonomousCommand();
-    CommandScheduler.getInstance().schedule(c);
+    rc.getAutonomousCommand();
+    
    /* switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
@@ -146,6 +163,10 @@ public class Robot extends TimedRobot {
     rc.m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
     //if(m_stick.getRawAxis(4)>10)
      // flywheel.arcadeDrive(1,0);
+     intake.run();
+     conveyer.run();
+     shooter.run();
+     climb.run();
     
   }
 

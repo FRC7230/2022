@@ -83,7 +83,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
+  public RamseteCommand getAutonomousCommand() {
 
     // Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
@@ -102,7 +102,7 @@ public class RobotContainer {
             .setKinematics(DriveConstants.kDriveKinematics)
             // Apply the voltage constraint
             .addConstraint(autoVoltageConstraint);
-    String trajectoryJSON = "Users\\Johnathan\\FRC\\Timed-Imported\\src\\main\\deploy\\paths\\5Ball.wpilib.json";
+    String trajectoryJSON = "Users\\ttaw2\\OneDrive\\Desktop\\FRC\\Software\\FRC test\\FRC 2020\\FRC 2020 code\\src\\main\\deploy\\output\\Start-Trench.wpilib.json";
     try {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
       trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
@@ -125,6 +125,6 @@ public class RobotContainer {
       m_robotDrive
   );
   //THIS MIGHT BE A PROBLEM LATER PLS CHECK UWU
-  return ramseteCommand.andThen();
+  return ramseteCommand;
     }
 }

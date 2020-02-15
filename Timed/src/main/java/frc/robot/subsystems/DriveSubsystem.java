@@ -21,24 +21,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Spark;
 import frc.robot.Constants.DriveConstants;
 
-import frc.robot.Robot;
-//import frc.robot.Robot;
 public class DriveSubsystem extends SubsystemBase {
- 
-  //test
-  public Spark l_motor1=  new Spark(0);
-  public Spark r_motor1 = new Spark(2);
-  public Spark l_motor2 = new Spark(1);
-  public Spark r_motor2 = new Spark(3);
   // The motors on the left side of the drive.
   private final SpeedControllerGroup m_leftMotors =
-      new SpeedControllerGroup(l_motor1,
-                               l_motor2);
+      new SpeedControllerGroup(new Spark(DriveConstants.kLeftMotor1Port),
+                               new Spark(DriveConstants.kLeftMotor2Port));
 
   // The motors on the right side of the drive.
   private final SpeedControllerGroup m_rightMotors =
-      new SpeedControllerGroup(r_motor1,
-                               r_motor2);
+      new SpeedControllerGroup(new Spark(DriveConstants.kRightMotor1Port),
+                               new Spark(DriveConstants.kRightMotor2Port));
 
   // The robot's drive
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
@@ -115,7 +107,6 @@ public class DriveSubsystem extends SubsystemBase {
   public void arcadeDrive(double fwd, double rot) {
     m_drive.arcadeDrive(fwd, rot);
   }
-  
 
   /**
    * Controls the left and right sides of the drive directly with voltages.
@@ -128,7 +119,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rightMotors.setVoltage(-rightVolts);
     m_drive.feed();
   }
-
   /**
    * Resets the drive encoders to currently read a position of 0.
    */
