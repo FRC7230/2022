@@ -8,7 +8,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -16,6 +15,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Spark;
+import frc.robot.RobotContainer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.Mechanisms.Mechanism;
+
+import java.io.IOException;
+import java.nio.file.Paths;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -28,19 +38,37 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
-  
-  private final Joystick m_stick = new Joystick(0);
+  private Joystick m_stick = new Joystick(0);
+  private Mechanism Intake = new Mechanism("button",0,5,6,1,2,50);
   private final Timer m_timer = new Timer();
-  CANSparkMax l_motor1 = new CANSparkMax(1, MotorType.kBrushless);
-  CANSparkMax r_motor1 = new CANSparkMax(2, MotorType.kBrushless);
-  CANSparkMax l_motor2 = new CANSparkMax(3, MotorType.kBrushless);
-  CANSparkMax r_motor2 = new CANSparkMax(4, MotorType.kBrushless);
-  CANSparkMax l_motor3 = new CANSparkMax(5, MotorType.kBrushless);
-  CANSparkMax r_motor3 = new CANSparkMax(6, MotorType.kBrushless);
-  DifferentialDrive drive1 = new DifferentialDrive(l_motor1, r_motor1);
-  DifferentialDrive drive2 = new DifferentialDrive(l_motor2, r_motor2);
-  DifferentialDrive drive3 = new DifferentialDrive(l_motor3, r_motor3);
+  //CANSparkMax l_motor1 = new CANSparkMax(1, MotorType.kBrushless);
+  //CANSparkMax r_motor1 = new CANSparkMax(2, MotorType.kBrushless);
+  //CANSparkMax l_motor2 = new CANSparkMax(3, MotorType.kBrushless);
+  //CANSparkMax r_motor2 = new CANSparkMax(4, MotorType.kBrushless);
+  //CANSparkMax l_flywheel = new CANSparkMax(5, MotorType.kBrushless);
+  //CANSparkMax r_flywheel = new CANSparkMax(6, MotorType.kBrushless);
+   //test
+  
+  
+ /* public Spark getSpark(int motor)
+  {
+    switch(motor)
+    {
+      case 0:
+        return l_motor1;
+      case 1:
+        return r_motor1;
+      case 2:
+        return l_motor2;
+      default:
+        return r_motor2;
+      
+    }
+  }*/
+ // DifferentialDrive flywheel = new DifferentialDrive(l_flywheel, r_flywheel);
+ RobotContainer rc = new RobotContainer(); 
+ Command c; 
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -77,8 +105,13 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+    // try {
+    //Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/YourPath.wpilib.json"));
+    // }
+    // catch (IOException e)
+    // {}
   }
 
   /**
@@ -86,7 +119,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
+    c=rc.getAutonomousCommand();
+    CommandScheduler.getInstance().schedule(c);
+   /* switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
         break;
@@ -99,7 +134,7 @@ public class Robot extends TimedRobot {
        //   m_robotDrive.stopMotor(); // stop robot
       }
         break;
-    }
+    }*/
   }
 
   /**
@@ -108,9 +143,10 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     
-    drive1.arcadeDrive(m_stick.getY(), m_stick.getX());
-    drive1.arcadeDrive(m_stick.getY(), m_stick.getX());
-    drive1.arcadeDrive(m_stick.getY(), m_stick.getX());
+    rc.m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
+    //if(m_stick.getRawAxis(4)>10)
+     // flywheel.arcadeDrive(1,0);
+    
   }
 
   /**
