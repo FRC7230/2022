@@ -9,7 +9,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PWMVictorSPX;
+//import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -21,31 +21,39 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Spark;
 import frc.robot.Constants.DriveConstants;
 
+//import frc.robot.Robot;
+//import frc.robot.Robot;
 public class DriveSubsystem extends SubsystemBase {
+ 
+  //test
+  public Spark l_motor1=  new Spark(0);
+  public Spark r_motor1 = new Spark(2);
+  public Spark l_motor2 = new Spark(1);
+  public Spark r_motor2 = new Spark(3);
   // The motors on the left side of the drive.
   private final SpeedControllerGroup m_leftMotors =
-      new SpeedControllerGroup(new Spark(DriveConstants.kLeftMotor1Port),
-                               new Spark(DriveConstants.kLeftMotor2Port));
+      new SpeedControllerGroup(l_motor1,
+                               l_motor2);
 
   // The motors on the right side of the drive.
   private final SpeedControllerGroup m_rightMotors =
-      new SpeedControllerGroup(new Spark(DriveConstants.kRightMotor1Port),
-                               new Spark(DriveConstants.kRightMotor2Port));
+      new SpeedControllerGroup(r_motor1,
+                               r_motor2);
 
   // The robot's drive
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
   // The left-side drive encoder
   private final Encoder m_leftEncoder =
-      new Encoder(DriveConstants.kLeftEncoderPorts[0], DriveConstants.kLeftEncoderPorts[1],
+      new Encoder(0, 1,
                   DriveConstants.kLeftEncoderReversed);
 
   // The right-side drive encoder
   private final Encoder m_rightEncoder =
-      new Encoder(DriveConstants.kRightEncoderPorts[0], DriveConstants.kRightEncoderPorts[1],
+      new Encoder(2, 3,
                   DriveConstants.kRightEncoderReversed);
 
-  // The gyro sensor
+  // The gyro sensoroo
   private final Gyro m_gyro = new ADXRS450_Gyro();
 
   // Odometry class for tracking robot pose
@@ -58,7 +66,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Sets the distance per pulse for the encoders
     m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
     m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
-
+    m_drive.setSafetyEnabled(false);
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeading()));
   }
@@ -107,6 +115,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void arcadeDrive(double fwd, double rot) {
     m_drive.arcadeDrive(fwd, rot);
   }
+  
 
   /**
    * Controls the left and right sides of the drive directly with voltages.
@@ -119,6 +128,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_rightMotors.setVoltage(-rightVolts);
     m_drive.feed();
   }
+
   /**
    * Resets the drive encoders to currently read a position of 0.
    */

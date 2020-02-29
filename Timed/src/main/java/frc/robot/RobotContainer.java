@@ -1,6 +1,5 @@
 package frc.robot;
 import java.util.List;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.controller.PIDController;
@@ -14,18 +13,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+
 import static edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.Filesystem;
-import java.io.IOException;
-import edu.wpi.first.wpilibj.DriverStation;
+
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+
 //import java.util.ArrayList;
 
 
@@ -78,12 +79,12 @@ public class RobotContainer {
   }
 
 
-  /**
+   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
-  public RamseteCommand getAutonomousCommand() {
+  public void getAutonomousCommand() {
 
     // Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
@@ -102,29 +103,39 @@ public class RobotContainer {
             .setKinematics(DriveConstants.kDriveKinematics)
             // Apply the voltage constraint
             .addConstraint(autoVoltageConstraint);
-    String trajectoryJSON = "Users\\ttaw2\\OneDrive\\Desktop\\FRC\\Software\\FRC test\\FRC 2020\\FRC 2020 code\\src\\main\\deploy\\output\\Start-Trench.wpilib.json";
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }
+
+    // An example trajectory to follow.  All units in meters.
+    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+        // Start at the origin facing the +X direction
+        new Pose2d(0, 0, new Rotation2d(0)),
+        // Pass through these two interior waypoints, making an 's' curve path
+        List.of(
+            new Translation2d(10, 1),
+            new Translation2d(20, -1)
+            ),
+        // End 3 meters straight ahead of where we started, facing forward
+        new Pose2d(30, 0, new Rotation2d(0)),
+        // Pass config
+        config
+    );
+
     RamseteCommand ramseteCommand = new RamseteCommand(
-      trajectory,
-      m_robotDrive::getPose,
-      new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
-      new SimpleMotorFeedforward(DriveConstants.ksVolts,
-                                 DriveConstants.kvVoltSecondsPerMeter,
-                                 DriveConstants.kaVoltSecondsSquaredPerMeter),
-      DriveConstants.kDriveKinematics,
-      m_robotDrive::getWheelSpeeds,
-      new PIDController(DriveConstants.kPDriveVel, 0, 0),
-      new PIDController(DriveConstants.kPDriveVel, 0, 0),
-      // RamseteCommand passes volts to the callback
-      m_robotDrive::tankDriveVolts,
-      m_robotDrive
-  );
-  //THIS MIGHT BE A PROBLEM LATER PLS CHECK UWU
-  return ramseteCommand;
-    }
+        exampleTrajectory,
+        m_robotDrive::getPose,
+        new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+        new SimpleMotorFeedforward(DriveConstants.ksVolts,
+                                   DriveConstants.kvVoltSecondsPerMeter,
+                                   DriveConstants.kaVoltSecondsSquaredPerMeter),
+        DriveConstants.kDriveKinematics,
+        m_robotDrive::getWheelSpeeds,
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        new PIDController(DriveConstants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        m_robotDrive::tankDriveVolts,
+        m_robotDrive
+    );
+
+    // Run path following command, then stop at the end.
+    ramseteCommand.schedule();
+  }
 }

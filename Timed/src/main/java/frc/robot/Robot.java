@@ -7,10 +7,14 @@
 
 package frc.robot;
 
+import java.lang.Math;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj.buttons.Button;
+
+//import edu.wpi.first.wpilibj.Timer;
 // import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,8 +24,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import edu.wpi.first.wpilibj.trajectory.Trajectory;
 // import edu.wpi.first.wpilibj.Spark;
 import frc.robot.RobotContainer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 // import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Mechanism;
 
@@ -40,6 +42,9 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private Joystick m_stick = new Joystick(0);
+
+//  private Button buttonA = new Button();
+
   private Mechanism intake = new Mechanism("button",0,5,6,1,2,50);
   private Mechanism conveyer = new Mechanism("button",0,7,8,3,4,50);
   private Mechanism shooter = new Mechanism("button",0,9,10,5,6,50);
@@ -57,7 +62,7 @@ public class Robot extends TimedRobot {
   */
 
   // private Mechanism Intake = new Mechanism("button",0,5,6,1,2,50);
-  private final Timer m_timer = new Timer();
+  //private final Timer m_timer = new Timer();
   //CANSparkMax l_motor1 = new CANSparkMax(1, MotorType.kBrushless);
   //CANSparkMax r_motor1 = new CANSparkMax(2, MotorType.kBrushless);
   //CANSparkMax l_motor2 = new CANSparkMax(3, MotorType.kBrushless);
@@ -129,6 +134,7 @@ public class Robot extends TimedRobot {
     // }
     // catch (IOException e)
     // {}
+    rc.getAutonomousCommand();
   }
 
   /**
@@ -136,8 +142,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    rc.getAutonomousCommand();
-    
    /* switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
@@ -157,16 +161,92 @@ public class Robot extends TimedRobot {
   /**
    * This function is called periodically during operator control.
    */
+  
   @Override
   public void teleopPeriodic() {
+
+    //establishes minimum and maximums of deadzone
+    final double deadZone=0.5;
+    final double minZone=0.07;
+
+    //gets joystick values and creates curves
+    double y = m_stick.getRawAxis(1);
+    double yprime = -Math.pow(y,3);
+      // double yprime=-y;
+    double x = m_stick.getRawAxis(4);
+    double xprime = Math.pow(x,3);
+      // double xprime=x;
     
-    rc.m_robotDrive.arcadeDrive(m_stick.getY(), m_stick.getX());
+    //The % power used
+    final double speedLimit = 0.8;
+    final double turnLimit=0.5;
+
+    //Reports joystick numbers
+    DriverStation.reportWarning("Y,X: "+((Double)yprime).toString()+","+((Double)xprime).toString(),true);
+    
+    //Button stuff
+
+      //Button A
+      if(true)
+      {
+  
+      }
+
+
+
+
+
+
+
+    //Mathmomagic! For X and Y
+    if(minZone<Math.abs(yprime)){
+      // yprime=deadZone*Math.signum(yprime);
+        yprime=Math.abs(yprime)/yprime*(deadZone+speedLimit*(1-deadZone)*(Math.abs(y)-0.1)/0.9);
+        DriverStation.reportWarning("BANANA"+((Double)Math.abs(yprime)).toString(),true);
+    }
+    else{
+      yprime=0;
+    }
+    if(minZone<Math.abs(xprime)){
+      xprime=Math.abs(xprime)/xprime*(deadZone+turnLimit*(1-deadZone)*(Math.abs(x)-0.1)/0.9);
+        DriverStation.reportWarning("KIWI"+((Double)Math.abs(xprime)).toString(),true);
+    }
+    else{
+      xprime=0;
+    }
+
+    //Actual drive part
+    rc.m_robotDrive.arcadeDrive(yprime, xprime);
+
+    
+
+
+
+
+
+
+    // if(0<m_stick.getRawAxis(4) && m_stick.getRawAxis(4)<-deadZone){
+    //   x=deadZone;
+    // }
+    // else if(0>m_stick.getRawAxis(4) && m_stick.getRawAxis(4)>-deadZone){
+    //   x=-deadZone;
+    // }
     //if(m_stick.getRawAxis(4)>10)
-     // flywheel.arcadeDrive(1,0);
+    // flywheel.arcadeDrive(1,0);
      intake.run();
      conveyer.run();
      shooter.run();
      climb.run();
+
+    //  if(m_stick.getRawButton(1)){
+    //    if(Limelight.isTarget())
+    //    rc.m_robotDrive.arcadeDrive(0,Limelight.getTx()*.1);
+    //    else
+    //   rc.m_robotDrive.arcadeDrive(0, 0);
+    //  }
+    // else
+    // rc.m_robotDrive.arcadeDrive(-Math.pow(y,3)*.8, Math.pow(x,3)*.8);
+
     
   }
 
