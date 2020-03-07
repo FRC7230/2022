@@ -9,11 +9,34 @@ package frc.robot;
 
 import java.lang.Math;
 
+import edu.wpi.first.wpilibj.Filesystem;
+import java.nio.file.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.buttons.Button;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.Trajectory.State;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.DriveSubsystem;
+
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import java.io.*;
+//import java.util.List;
+
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 //import edu.wpi.first.wpilibj.Timer;
 // import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -23,7 +46,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 // import edu.wpi.first.wpilibj.trajectory.Trajectory;
 // import edu.wpi.first.wpilibj.Spark;
-import frc.robot.RobotContainer;
+//import frc.robot.RobotContainer;
 // import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Mechanism;
 
@@ -42,7 +65,8 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private Joystick m_stick = new Joystick(0);
-
+ private DriveSubsystem m_robotDrive = new DriveSubsystem();
+ private FindPath fp = new FindPath();
 //  private Button buttonA = new Button();
 
   private Mechanism intake = new Mechanism("button",0,5,6,1,2,50);
@@ -61,6 +85,33 @@ public class Robot extends TimedRobot {
   Middle Button ® - 8
   */
 
+
+  
+
+    // Create config for trajectory
+    
+   // String trajectoryJSON = "C:\\Users\\Johnathan\\FRC\\Timed-Imported\\src\\main\\deploy\\paths\\loopdeloop.wpilib.json";
+            
+   
+   
+   RamseteIterative ramsete = new RamseteIterative(
+       fp.getPath(),
+       m_robotDrive::getPose,
+       new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+       new SimpleMotorFeedforward(DriveConstants.ksVolts,
+                                  DriveConstants.kvVoltSecondsPerMeter,
+                                  DriveConstants.kaVoltSecondsSquaredPerMeter),
+       DriveConstants.kDriveKinematics,
+       m_robotDrive::getWheelSpeeds,
+       new PIDController(DriveConstants.kPDriveVel, 0, 0),
+       new PIDController(DriveConstants.kPDriveVel, 0, 0),
+       // RamseteCommand passes volts to the callback
+       m_robotDrive::tankDriveVolts
+   );
+          
+    // An example trajectory to follow.  All units in meters.
+   
+    
   // private Mechanism Intake = new Mechanism("button",0,5,6,1,2,50);
   //private final Timer m_timer = new Timer();
   //CANSparkMax l_motor1 = new CANSparkMax(1, MotorType.kBrushless);
@@ -71,7 +122,7 @@ public class Robot extends TimedRobot {
   //CANSparkMax r_flywheel = new CANSparkMax(6, MotorType.kBrushless);
    //test
   
-  
+
  /* public Spark getSpark(int motor)
   {
     switch(motor)
@@ -88,7 +139,7 @@ public class Robot extends TimedRobot {
     }
   }*/
  // DifferentialDrive flywheel = new DifferentialDrive(l_flywheel, r_flywheel);
- RobotContainer rc = new RobotContainer(); 
+
 //  RamseteCommand c; 
 
   /**
@@ -96,9 +147,11 @@ public class Robot extends TimedRobot {
    * used for any initialization code.
    */  @Override
   public void robotInit() {
+    m_robotDrive.calibrate();
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    
   }
 
   /**
@@ -111,6 +164,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    SmartDashboard.putNumber("LEncoder", m_robotDrive.getLeftEncoder().getDistance());
+    SmartDashboard.putNumber("REncoder", m_robotDrive.getRightEncoder().getDistance());
+    SmartDashboard.putNumber("Turn", m_robotDrive.getTurnRate());
   }
 
   /**
@@ -134,7 +190,8 @@ public class Robot extends TimedRobot {
     // }
     // catch (IOException e)
     // {}
-    rc.getAutonomousCommand();
+   
+    ramsete.initialize();
   }
 
   /**
@@ -142,6 +199,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    ramsete.execute();
    /* switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
@@ -198,25 +256,32 @@ public class Robot extends TimedRobot {
 
 
 
-    //Mathmomagic! For X and Y
+    //Mathmomagic! For X and Y 
     if(minZone<Math.abs(yprime)){
       // yprime=deadZone*Math.signum(yprime);
         yprime=Math.abs(yprime)/yprime*(deadZone+speedLimit*(1-deadZone)*(Math.abs(y)-0.1)/0.9);
-        DriverStation.reportWarning("BANANA"+((Double)Math.abs(yprime)).toString(),true);
+        //DriverStation.reportWarning("BANANA"+((Double)Math.abs(yprime)).toString(),true);
     }
     else{
       yprime=0;
     }
     if(minZone<Math.abs(xprime)){
       xprime=Math.abs(xprime)/xprime*(deadZone+turnLimit*(1-deadZone)*(Math.abs(x)-0.1)/0.9);
-        DriverStation.reportWarning("KIWI"+((Double)Math.abs(xprime)).toString(),true);
+        //DriverStation.reportWarning("KIWI"+((Double)Math.abs(xprime)).toString(),true);
     }
     else{
       xprime=0;
     }
 
+
+
     //Actual drive part
-    rc.m_robotDrive.arcadeDrive(yprime, xprime);
+    
+    // if(Math.abs(xprime)<0.2)
+    //   rc.m_robotDrive.arcadeDrive(yprime, rc.m_robotDrive.getTurnRate()*Math.signum(xprime));
+    // else
+      m_robotDrive.arcadeDrive(yprime, xprime);
+    
 
     
 
@@ -238,14 +303,15 @@ public class Robot extends TimedRobot {
      shooter.run();
      climb.run();
 
-    //  if(m_stick.getRawButton(1)){
-    //    if(Limelight.isTarget())
-    //    rc.m_robotDrive.arcadeDrive(0,Limelight.getTx()*.1);
-    //    else
-    //   rc.m_robotDrive.arcadeDrive(0, 0);
-    //  }
-    // else
-    // rc.m_robotDrive.arcadeDrive(-Math.pow(y,3)*.8, Math.pow(x,3)*.8);
+    if(m_stick.getRawButton(1)){
+      if(Limelight.isTarget())
+        if(Limelight.getTx()!=0)
+          m_robotDrive.arcadeDrive(0,Limelight.getTx()*.1);
+        else
+          m_robotDrive.arcadeDrive(0, 0);
+    }
+    else
+    m_robotDrive.arcadeDrive(-Math.pow(y,3)*.8, Math.pow(x,3)*.8);
 
     
   }

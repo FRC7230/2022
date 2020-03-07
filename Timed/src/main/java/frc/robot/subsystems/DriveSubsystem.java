@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Spark;
 import frc.robot.Constants.DriveConstants;
+import com.kauailabs.navx.frc.AHRS;;
 
 //import frc.robot.Robot;
 //import frc.robot.Robot;
@@ -45,16 +46,16 @@ public class DriveSubsystem extends SubsystemBase {
 
   // The left-side drive encoder
   private final Encoder m_leftEncoder =
-      new Encoder(0, 1,
+      new Encoder(2, 3,
                   DriveConstants.kLeftEncoderReversed);
 
   // The right-side drive encoder
   private final Encoder m_rightEncoder =
-      new Encoder(2, 3,
+      new Encoder(0, 1,
                   DriveConstants.kRightEncoderReversed);
 
   // The gyro sensoroo
-  private final Gyro m_gyro = new ADXRS450_Gyro();
+  private final Gyro m_gyro = new AHRS();
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
@@ -115,6 +116,9 @@ public class DriveSubsystem extends SubsystemBase {
   public void arcadeDrive(double fwd, double rot) {
     m_drive.arcadeDrive(fwd, rot);
   }
+  public void calibrate(){
+    m_gyro.reset();
+  }
   
 
   /**
@@ -162,6 +166,10 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public Encoder getRightEncoder() {
     return m_rightEncoder;
+  }
+
+  public double getError(){
+    return m_leftEncoder.getDistance()-m_rightEncoder.getDistance();
   }
 
   /**

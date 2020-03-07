@@ -24,12 +24,12 @@ public final class Constants {
     public static final int kRightMotor1Port = 2;
     public static final int kRightMotor2Port = 3;
 
-    public static final int[] kLeftEncoderPorts = new int[]{0, 1};
-    public static final int[] kRightEncoderPorts = new int[]{2, 3};
+    public static final int[] kLeftEncoderPorts = new int[]{2, 3};
+    public static final int[] kRightEncoderPorts = new int[]{0, 1};
     public static final boolean kLeftEncoderReversed = false;
     public static final boolean kRightEncoderReversed = true;
 
-    public static final double kTrackwidthMeters = 0.69;
+    public static final double kTrackwidthMeters = 0.55;
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
 
@@ -39,19 +39,19 @@ public final class Constants {
         // Assumes the encoders are directly mounted on the wheel shafts
         (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 
-    public static final boolean kGyroReversed = true;
+    public static final boolean kGyroReversed = false;
 
     // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
     // These characterization values MUST be determined either experimentally or theoretically
     // for *your* robot's drive.
     // The Robot Characterization Toolsuite provides a convenient tool for obtaining these
     // values for your robot.
-    public static final double ksVolts = 0.22;
-    public static final double kvVoltSecondsPerMeter = 1.98;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.2;
+    public static final double ksVolts = 2.14;
+    public static final double kvVoltSecondsPerMeter = 1.69;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.294;
 
     // Example value only - as above, this must be tuned for your drive!
-    public static final double kPDriveVel = 8.5;
+    public static final double kPDriveVel = 11.8;
   }
 
   public static final class OIConstants {

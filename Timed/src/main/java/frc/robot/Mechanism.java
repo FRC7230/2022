@@ -100,5 +100,13 @@ public class Mechanism{
         }
 
     }
+    public void go(double power){
+        motor1.set(power);
+        motor2.set(power);
+    }
+    public void stop(){
+        motor1.set(0);
+        motor2.set(0);
+    }
     
 }

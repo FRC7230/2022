@@ -11,6 +11,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 public class Limelight {
 	private static NetworkTableInstance table = null;
 
+	public static double h1 = 10;
+	public static double a1 = 30;
 	/**
 	 * Light modes for Limelight.
 	 * 
@@ -81,6 +83,10 @@ public class Limelight {
 	 */
 	public static double getTl() {
 		return getValue("tl").getDouble(0.00);
+	}
+
+	public static double getD() {
+		return (98.19-h1) / Math.tan(a1+getTy());
 	}
 
 	/**
